@@ -3,4 +3,7 @@ Flask-Migrate==4.0.7
 Flask-JWT-Extended==4.6.0
 PyJWT==2.8.0
 Flask-SQLAlchemy==3.1.1
+Flask-CORS
 sqlalchemy_serializer
+requests
+

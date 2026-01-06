@@ -19,4 +19,4 @@ with app.app_context():
         db.session.commit()
 
 
-app.run()
+app.run(port=5111)

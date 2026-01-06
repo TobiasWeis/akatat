@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import axios from 'axios';
+import _ from 'lodash'
 import './App.css'
 
 
@@ -19,7 +20,7 @@ function App() {
 
     const translate = () => {
         axios.post(
-            'http://localhost:5000/translate/', {input_text: inputText}
+            'http://localhost:5111/translate/', {input_text: inputText}
         ).then(function (response) {
             console.log(response.data.translation);
             setTranslatedText(response.data.translation);
@@ -30,7 +31,7 @@ function App() {
 
     const transliterate = () => {
         // send to backend to transliterate
-        axios.post('http://localhost:5000/transliterate/', {
+        axios.post('http://localhost:5111/transliterate/', {
             input_text: inputText,
           })
           .then(function (response) {
@@ -57,7 +58,17 @@ function App() {
               onChange={e => setInputText(e.target.value)}
           />
           <p>{outputText}</p>
-          <p>{translatedText}</p>
+          <table>
+
+          {_.map(translatedText, singleTranslation => { return (
+              <tr>
+                  <td style={{'textAlign':'right', 'paddingRight':'10px', 'borderRight':'1px solid gray'}}>{singleTranslation['in']}</td>
+                  <td style={{'textAlign':'left', 'paddingLeft':'10px', 'paddingRight':'10px','borderRight':'1px solid gray'}}>{singleTranslation['transliterated']}</td>
+                  <td style={{'textAlign':'left', 'paddingLeft':'10px'}}>{singleTranslation['out']}</td>
+              </tr>
+              )
+          })}
+          </table>
       </div>
     </>
   )
