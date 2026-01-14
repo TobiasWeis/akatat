@@ -18,5 +18,18 @@ with app.app_context():
                 )
         db.session.commit()
 
+    translation_sources = [
+        models.TranslationSource(
+            source_name="Translate.ge",
+            source_url="https://beta2.translate.ge/api/translate?from=ka&to=en&str=%s",
+            query_format="georgian_bytes"
+        )
+    ]
+
+    for ts in translation_sources:
+        if db.session.query(models.TranslationSource).filter_by(source_name=ts.source_name).first() is None:
+            db.session.add(ts)
+            db.session.commit()
+
 
 app.run(port=5111)

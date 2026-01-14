@@ -3,45 +3,31 @@ import axios from 'axios';
 import _ from 'lodash'
 import './App.css'
 
+import loading_gif from '../public/loading.svg';
+
 
 function App() {
+    const [loading, setLoading] = useState(false);
     const [inputText, setInputText] = useState('');
-    const [outputText, setOutputText] = useState('');
     const [translatedText, setTranslatedText] = useState('')
 
-    useEffect(() => {
-        transliterate();
-    }, [inputText]);
-
-    useEffect(() => {
-        // TODO: check if there is a space (meaning: we have full words)
-        translate();
-    }, [outputText])
-
     const translate = () => {
+        setLoading(true);
         axios.post(
             'http://localhost:5111/translate/', {input_text: inputText}
         ).then(function (response) {
             console.log(response.data.translation);
             setTranslatedText(response.data.translation);
+            setLoading(false);
         }).catch(function (error) {
             console.log(error);
+            setLoading(false);
         })
     }
 
-    const transliterate = () => {
-        // send to backend to transliterate
-        axios.post('http://localhost:5111/transliterate/', {
-            input_text: inputText,
-          })
-          .then(function (response) {
-            console.log(response);
-            setOutputText(response.data.transliterated);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-    }
+    useEffect(() => {
+        setTranslatedText('');
+    }, [inputText]);
 
   return (
     <>
@@ -51,24 +37,49 @@ function App() {
         Automatic Kartuli Transliteration and Translation
       </p>
 
-      <div className="card" style={{'minWidth': '80%'}}>
+        <p><b>Try it:</b></p>
+        <p onClick={() => {setInputText("რა გქვიათ")}}>რა გქვიათ? (ra gkviat?)</p>
+        <p onClick={() => {setInputText("საიდან ხართ")}}>საიდან ხართ? (saidan khart?)</p>
+        <p onClick={() => {setInputText("როგორ იქნება ქართულად")}}>როგორ იქნება ქართულად ...? (rogor ikneba kartulad ...?)</p>
+        <p onClick={() => {setInputText("გილოცავ შობა")}}>გილოცავ შობა (gilotsav shoba)</p>
+
+
+      <div className="card" style={{'minWidth': '800px', 'width': '100%'}}>
           <input
-              style={{'width': '100%', 'padding': '12px'}}
+              style={{'width': '80%', 'padding': '12px', 'float': 'left'}}
               value={inputText}
               onChange={e => setInputText(e.target.value)}
           />
-          <p>{outputText}</p>
-          <table>
+          <button
+              onClick={() => {translate();}}
+              style={{'width': '15%', 'float': 'left'}}
+          >Transform</button>
 
-          {_.map(translatedText, singleTranslation => { return (
-              <tr>
-                  <td style={{'textAlign':'right', 'paddingRight':'10px', 'borderRight':'1px solid gray'}}>{singleTranslation['in']}</td>
-                  <td style={{'textAlign':'left', 'paddingLeft':'10px', 'paddingRight':'10px','borderRight':'1px solid gray'}}>{singleTranslation['transliterated']}</td>
-                  <td style={{'textAlign':'left', 'paddingLeft':'10px'}}>{singleTranslation['out']}</td>
-              </tr>
-              )
-          })}
-          </table>
+          <br style={{'clear': 'both'}}/>
+
+          {loading &&
+            <img src={loading_gif}/>
+          }
+
+          {!loading &&
+              <>
+                  <p>{_.map(translatedText, singleTranslation => { return (
+                      singleTranslation['transliterated'] + " "
+                  )})}</p>
+                  <table>
+
+                  {_.map(translatedText, singleTranslation => { return (
+                      <tr>
+                          <td style={{'textAlign':'right', 'paddingRight':'10px', 'borderRight':'1px solid gray'}}>{singleTranslation['in']}</td>
+                          <td style={{'textAlign':'left', 'paddingLeft':'10px', 'paddingRight':'10px','borderRight':'1px solid gray'}}>{singleTranslation['transliterated']}</td>
+                          <td style={{'textAlign':'left', 'paddingLeft':'10px'}}>{singleTranslation['out']}</td>
+                          <td style={{'textAlign':'left', 'paddingLeft':'10px', 'color': 'gray'}}><i>{singleTranslation['source_name']}</i></td>
+                      </tr>
+                      )
+                  })}
+                  </table>
+              </>
+            }
       </div>
     </>
   )
